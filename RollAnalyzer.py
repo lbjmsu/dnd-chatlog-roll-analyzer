@@ -1,3 +1,17 @@
+
+# -------------------------------------------------------------------------------------------------------
+#       INITIAL NOTES:
+#           1. IMPORTANT USER INFORMATION -- See "USER SECTION" at bottom of this file for simplified usage and data analysis.
+#           2. This program has only been tested on the associated HTML file thus far. Thus, certain input validation techniques may need to be added
+# -------------------------------------------------------------------------------------------------------
+
+
+# -------------------------------------------------------------------------------------------------------
+#       FILE PREPROCESSING SECTION:
+#           Retrieve the "rolls" section of the chat log file and ensure character compatibility (i.e., replace "&lt;" and similar multi-char character representations)
+# -------------------------------------------------------------------------------------------------------
+
+
 #   Read all characters from the chat log html file
 allOfHistory = ""
 with open("Chat Log for Eramu Full.htm", encoding="utf-8") as f:
@@ -16,6 +30,13 @@ allOfHistory = allOfHistory[contentStart:contentEnd]
 #   Creates a problem with roll formulas that contain a "< or >", e.g., rolling {24D20+5}>14
 #   TODO: 1. Create a flag to ignore everything after a class="formula" div tag until "</" is found. Requires a "prevChar" variable
 allOfHistory = allOfHistory.replace("&lt;", "<").replace("&quot;", "\"").replace("&gt;", ">")
+
+
+# -------------------------------------------------------------------------------------------------------
+#       HTML PROCESSING SECTION:
+#           Using a stack, iterate through all elements in the HTML file, extracting roll information such as die type, roll result, timestamp, etc. for each roll in the HTML.
+# -------------------------------------------------------------------------------------------------------
+
 
 def getRolls(chatLog: str, debug: bool = False):
     #   Element tracking variables
@@ -211,6 +232,13 @@ def getRolls(chatLog: str, debug: bool = False):
 
     return rolls
 
+
+# -------------------------------------------------------------------------------------------------------
+#       DATA SIMPLIFICATION SECTION:
+#           Extract roll information (for a specific player/specific die, if requested) from the "roll" dict/JSON objects 
+# -------------------------------------------------------------------------------------------------------
+
+
 def processJsonRolls(jsonRolls, player="", dieType=""):
     #   If jsonRolls is a single json object, turn it into a list with one object (it)
     if type(jsonRolls) is not list:
@@ -273,10 +301,15 @@ processedRolls = processJsonRolls(getRolls(allOfHistory))
 print("Players:", list(processedRolls.keys()))
 
 
+# -------------------------------------------------------------------------------------------------------
+#       USER SECTION:
+#           Use this section to analyze rolls based on player and on die type (e.g., d4, d6, d8, etc.)
+# -------------------------------------------------------------------------------------------------------
+
+
 #   Change "Caio S." in the "player" variable below to whichever character you wish to analyze:
 player = "Caio S."
-#       Print a list of die types rolled by the chosen player.
-print(f"{player}'s roll types:", list(processedRolls[player].keys()))
+print(f"{player}'s roll types:", list(processedRolls[player].keys()))   #   Print a list of die types rolled by the chosen player.
 
 #   Change the "dieType" variable to whichever die type you would like to receive results for:
 dieType = "d20"
