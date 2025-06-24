@@ -272,10 +272,23 @@ processedRolls = processJsonRolls(getRolls(allOfHistory))
 #   Note: Brocas and Brocas Weldge are both Brannon. There are also two Emersons (Kasai M., Emerson J.) and two Caios (Caio S., Drott)
 print("Players:", list(processedRolls.keys()))
 
-#   Get a list of die types rolled by a player by changing "Caio S." below to whichever character you wish to analyze
+
+#   Change "Caio S." in the "player" variable below to whichever character you wish to analyze:
 player = "Caio S."
+#       Print a list of die types rolled by the chosen player.
 print(f"{player}'s roll types:", list(processedRolls[player].keys()))
 
-#   Get a list of rolls of a certain die type from a player by referencing processedRolls["playerName"]["dieType"]
-print("Emerson J.'s d10 rolls:", processedRolls["Emerson J."]["d10"])
-print("Hannah Kuu's d4 rolls:", processedRolls["Hannah Kuu"]["d4"])
+#   Change the "dieType" variable to whichever die type you would like to receive results for:
+dieType = "d20"
+
+#   Print the results of your roll query!
+playerRolls = processedRolls[player][dieType]
+if dieType in processedRolls[player]:
+    print(f"{player}'s {dieType} rolls:", playerRolls)
+else:
+    print(f"{player} has no {dieType} rolls.")
+
+#   ADVANCED: Get a list of rolls of a certain die type from a player by referencing processedRolls["playerName"]["dieType"]
+#       e.g. print("Emerson J.'s d10 rolls:", processedRolls["Emerson J."]["d10"])
+#       e.g. print("Hannah Kuu's d4 rolls:", processedRolls["Hannah Kuu"]["d4"])
+#   OR: Reference "playerRolls" to further process the rolls retrieved above.
