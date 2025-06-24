@@ -13,9 +13,9 @@
 
 
 #   Read all characters from the chat log html file
-allOfHistory = ""
+logContent = ""
 with open("Chat Log for Eramu Full.htm", encoding="utf-8") as f:
-    allOfHistory = f.read()
+    logContent = f.read()
 
 #   Retrieve just the "rolls" portion of the html -- are these always the same?
 start = "<div class=\"message"
@@ -23,13 +23,13 @@ end = """</div>
 </div>
 <script id="tmpl_chatmessage_general" type="text/html">"""
 
-contentStart = allOfHistory.index(start)
-contentEnd = allOfHistory.index(end)
-allOfHistory = allOfHistory[contentStart:contentEnd]
+contentStart = logContent.index(start)
+contentEnd = logContent.index(end)
+logContent = logContent[contentStart:contentEnd]
 
 #   Creates a problem with roll formulas that contain a "< or >", e.g., rolling {24D20+5}>14
 #   TODO: 1. Create a flag to ignore everything after a class="formula" div tag until "</" is found. Requires a "prevChar" variable
-allOfHistory = allOfHistory.replace("&lt;", "<").replace("&quot;", "\"").replace("&gt;", ">")
+logContent = logContent.replace("&lt;", "<").replace("&quot;", "\"").replace("&gt;", ">")
 
 
 # -------------------------------------------------------------------------------------------------------
@@ -293,18 +293,19 @@ def processJsonRolls(jsonRolls, player="", dieType=""):
     
     return rolls
 
-rolls = getRolls(allOfHistory)
-
-processedRolls = processJsonRolls(getRolls(allOfHistory))
-
-#   Note: Brocas and Brocas Weldge are both Brannon. There are also two Emersons (Kasai M., Emerson J.) and two Caios (Caio S., Drott)
-print("Players:", list(processedRolls.keys()))
-
 
 # -------------------------------------------------------------------------------------------------------
 #       USER SECTION:
 #           Use this section to analyze rolls based on player and on die type (e.g., d4, d6, d8, etc.)
 # -------------------------------------------------------------------------------------------------------
+
+
+rolls = getRolls(logContent)
+
+processedRolls = processJsonRolls(getRolls(logContent))
+
+#   Note: Brocas and Brocas Weldge are both Brannon. There are also two Emersons (Kasai M., Emerson J.) and two Caios (Caio S., Drott)
+print("Players:", list(processedRolls.keys()))
 
 
 #   Change "Caio S." in the "player" variable below to whichever character you wish to analyze:
