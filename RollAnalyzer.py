@@ -1,3 +1,4 @@
+from collections import defaultdict
 
 # -------------------------------------------------------------------------------------------------------
 #       INITIAL NOTES:
@@ -235,7 +236,7 @@ def getRolls(chatLog: str, debug: bool = False):
 
 # -------------------------------------------------------------------------------------------------------
 #       DATA SIMPLIFICATION SECTION:
-#           Extract roll information (for a specific player/specific die, if requested) from the "roll" dict/JSON objects 
+#           Extract roll information (for a specific player/specific die, if requested) from the dict of "rolls" as seen in the above section
 # -------------------------------------------------------------------------------------------------------
 
 
@@ -244,54 +245,21 @@ def processJsonRolls(jsonRolls, player="", dieType=""):
     if type(jsonRolls) is not list:
         jsonRolls = [jsonRolls]
 
-    rolls = {}
+    #   Create default values for rolls["player"] -> (defaultdict(list)) and for rolls["player"]["dieType"] -> (list)
+    rolls = defaultdict(lambda: defaultdict(list))
 
-    #   Return a json of all rolls for all players
-    if player == "" and dieType == "":
-        for r in jsonRolls:
-            for dieType in r["rolls"]:
-                for roll in r["rolls"][dieType]:
-                    if r["by"] not in rolls:
-                        rolls[r["by"]] = {}
-                    if dieType in rolls[r["by"]]:
-                        rolls[r["by"]][dieType].append(int(roll))
-                    else:
-                        rolls[r["by"]][dieType] = [int(roll)]
-
-    #   Return a json of a specific roll type for all players
-    elif player == "":
-        jsonRolls = list(filter(lambda x: dieType in x["rolls"], jsonRolls))
-        for r in jsonRolls:
-            for roll in r["rolls"][dieType]:
-                if r["by"] not in rolls:
-                    rolls[r["by"]] = {}
-                if dieType in rolls[r["by"]]:
-                    rolls[r["by"]][dieType].append(int(roll))
-                else:
-                    rolls[r["by"]][dieType] = [int(roll)]
-
-    #   Return a json of all roll types for a specific player
-    elif dieType == "":
-        jsonRolls = list(filter(lambda x: x["by"] == player, jsonRolls))
-        for r in jsonRolls:
-            for dieType in r["rolls"]:
-                for roll in r["rolls"][dieType]:
-                    if dieType in rolls:
-                        rolls[dieType].append(int(roll))
-                    else:
-                        rolls[dieType] = [int(roll)]
+    #   Filter jsonRolls to match the user-provided arguments
+    argFilter = lambda x: (x if not player else x["by"] == player) and (x if not dieType else dieType in x["rolls"])
+    jsonRolls = list(filter(argFilter, jsonRolls))
     
-    #   Return a json of a specific roll type for a specific player
-    else:
-        jsonRolls = list(filter(lambda x: x["by"] == player and dieType in x["rolls"], jsonRolls))
-        for r in jsonRolls:
-            for roll in r["rolls"][dieType]:
-                if dieType in rolls:
-                    rolls[dieType].append(int(roll))
-                else:
-                    rolls[dieType] = [int(roll)]
+    #   Process roll results from the list of roll sets in "jsonRolls"
+    for rollSet in jsonRolls:
+        rollDieTypes = [dieType] if dieType else rollSet["rolls"].keys()   #   Get list of die types rolled in the current roll set
+        for dType in rollDieTypes:  
+            for rollResult in rollSet["rolls"][dType]:
+                rolls[rollSet["by"]][dType].append(int(rollResult))
     
-    return rolls
+    return dict(rolls)
 
 
 # -------------------------------------------------------------------------------------------------------
@@ -301,8 +269,7 @@ def processJsonRolls(jsonRolls, player="", dieType=""):
 
 
 rolls = getRolls(logContent)
-
-processedRolls = processJsonRolls(getRolls(logContent))
+processedRolls = processJsonRolls(rolls)
 
 #   Note: Brocas and Brocas Weldge are both Brannon. There are also two Emersons (Kasai M., Emerson J.) and two Caios (Caio S., Drott)
 print("Players:", list(processedRolls.keys()))
